@@ -1,0 +1,11 @@
+# Local SQLite database
+db.sqlite3
+# Ignore virtual environment
+users/utils/myenv/
+
+# Ignore weights files
+*.weights
+
+# Ignore python compiled files
+*.pyc
+__pycache__/

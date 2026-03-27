@@ -1,0 +1,17 @@
+# Traffic Gesture Dataset
+path: E:\Teja Worksapce\darkflow\Traffic Police Gesture dataset\traffic_simulation\datasets\traffic_gestures
+train: images/train
+val: images/val
+nc: 10
+
+names:
+  0: move_straight
+  1: lane_left
+  2: stop_signal
+  3: right_over
+  4: right_turn
+  5: left_over
+  6: right
+  7: lane_right
+  8: left_turn
+  9: left

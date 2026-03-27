@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Signal Control System</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #1e293b;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: #ffffff;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gray-200);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-link {
+            color: var(--gray-600);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gray-400);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: 
+                linear-gradient(rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.9)),
+                url('https://media.gettyimages.com/id/598973698/photo/green-and-red-traffic-light.jpg?s=612x612&w=0&k=20&c=lEeRNpOke9oPrY2SkbFTpeVVXP14OaJYwIydQYdpijo=');
+            background-size: cover;
+            background-position: center;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            margin-top: 80px; /* Prevent header overlap */
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            margin: 0 auto;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            color: white;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--gray-300);
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+
+        /* Section Styles */
+        .section {
+            padding: 5rem 0;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: 1rem;
+            letter-spacing: -0.025em;
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Traffic Signal Styles */
+        .traffic-signal-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 4rem;
+            flex-wrap: wrap;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .signal-box {
+            background: var(--gray-800);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 300px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .signal-heading {
+            color: white;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.25rem;
+        }
+
+        .traffic-light {
+            background: var(--gray-900);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .light {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--gray-700);
+            transition: all 0.3s ease;
+        }
+
+        .light.active.red {
+            background: var(--danger);
+            box-shadow: 0 0 20px rgba(220, 38, 38, 0.7);
+        }
+
+        .light.active.yellow {
+            background: var(--warning);
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+        }
+
+        .light.active.green {
+            background: var(--success);
+            box-shadow: 0 0 20px rgba(22, 163, 74, 0.7);
+        }
+
+        .vehicle-count {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .count-display {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gray-800);
+            margin-bottom: 0.5rem;
+        }
+
+        .count-label {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--gray-200);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .control-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .control-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--gray-300);
+            outline: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+        }
+
+        .slider-value {
+            font-weight: 600;
+            color: var(--gray-800);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        /* Gesture Recognition */
+        .gesture-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 2rem;
+            flex-wrap: wrap;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .gesture-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--gray-200);
+            width: 300px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .gesture-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .gesture-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .gesture-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin-bottom: 0.5rem;
+        }
+
+        .gesture-desc {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            line-height: 1.5;
+        }
+
+        /* Traffic Image Sections */
+        .traffic-image-section {
+            background: 
+                linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+                url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2074&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .signal-image-section {
+            background: 
+                linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.9)),
+                url('https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gray-900);
+            color: white;
+        }
+
+        .footer-content {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            padding: 4rem 0;
+        }
+
+        .footer-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--gray-400);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid var(--gray-800);
+            padding: 2rem 0;
+            text-align: center;
+            color: var(--gray-400);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+            
+            .section-title {
+                font-size: 2.25rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+            
+            .section {
+                padding: 3rem 0;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .traffic-signal-container {
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.875rem;
+            }
+            
+            .signal-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="nav-container">
+            <nav class="flex items-center justify-between py-4">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <i class="bi bi-traffic-light text-2xl" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    <a href="#" class="logo">TrafficControl</a>
+                </div>
+
+                <!-- Navigation -->
+                <div class="hidden md:flex items-center gap-2">
+                    <a href="#" class="nav-link active">Home</a>
+                    <a href="#signals" class="nav-link">Signals</a>
+                    <a href="#about" class="nav-link">About</a>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'basefunction' %}" class="btn btn-secondary">
+                        <i class="bi bi-house-door"></i> Home
+                    </a>
+                    <a href="{%url 'admin_login'%}" class="btn btn-secondary">
+                        <i class="bi bi-gear"></i> Admin Portal
+                    </a>
+
+
+                    <a href="{% url 'userloginsignup' %}" class="btn btn-secondary d-inline-flex align-items-center">
+            <!-- Inline SVG for traffic lights (no bootstrap-icons required) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" class="me-2" fill="currentColor" aria-hidden="true">
+                        <path d="M5 1a1 1 0 0 0-1 1v1H3.5A1.5 1.5 0 0 0 2 4.5v7A1.5 1.5 0 0 0 3.5 13H5v1a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1h1.5A1.5 1.5 0 0 0 15 11.5v-7A1.5 1.5 0 0 0 13.5 3H11V2a1 1 0 0 0-1-1H5zM6 2h4v1H6V2zM3.5 4h9A.5.5 0 0 1 13 4.5v7a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-7A.5.5 0 0 1 3.5 4z"/>
+                        <circle cx="8" cy="6" r="1"/>
+                        <circle cx="8" cy="8.5" r="1"/>
+                        <circle cx="8" cy="11" r="1"/>
+                    </svg>
+                    TrafficControl
+                    </a>
+
+
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="nav-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Intelligent Traffic<br>
+                    <span>Signal Control</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Advanced traffic management system using vehicle detection and hand gesture recognition 
+                    to optimize traffic flow and reduce congestion in urban areas.
+                </p>
+                <div class="flex gap-4 mt-8 justify-center">
+                    <a href="#signals" class="btn btn-primary">
+                        <i class="bi bi-eye"></i> View Signals
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Traffic Signals Section -->
+    <section class="section traffic-image-section" id="signals">
+        <div class="section-header">
+            <h2 class="section-title">Live Traffic Signals</h2>
+            <p class="section-subtitle">Real-time monitoring and control of traffic signals based on vehicle density</p>
+        </div>
+        
+        <div class="traffic-signal-container">
+            <!-- Signal 1 -->
+            <div class="signal-box">
+                <h3 class="signal-heading">Intersection A</h3>
+                <div class="traffic-light">
+                    <div class="light red active"></div>
+                    <div class="light yellow"></div>
+                    <div class="light green"></div>
+                </div>
+                <div class="vehicle-count">
+                    <div class="count-display">24</div>
+                    <div class="count-label">Vehicles Detected</div>
+                </div>
+            </div>
+            
+            <!-- Signal 2 -->
+            <div class="signal-box">
+                <h3 class="signal-heading">Intersection B</h3>
+                <div class="traffic-light">
+                    <div class="light red"></div>
+                    <div class="light yellow"></div>
+                    <div class="light green active"></div>
+                </div>
+                <div class="vehicle-count">
+                    <div class="count-display">12</div>
+                    <div class="count-label">Vehicles Detected</div>
+                </div>
+            </div>
+            
+            <!-- Signal 3 -->
+            <div class="signal-box">
+                <h3 class="signal-heading">Intersection C</h3>
+                <div class="traffic-light">
+                    <div class="light red"></div>
+                    <div class="light yellow active"></div>
+                    <div class="light green"></div>
+                </div>
+                <div class="vehicle-count">
+                    <div class="count-display">38</div>
+                    <div class="count-label">Vehicles Detected</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Gesture Recognition Section -->
+    <section class="section traffic-image-section">
+        <div class="section-header">
+            <h2 class="section-title">Hand Gesture Control</h2>
+            <p class="section-subtitle">Emergency manual control using hand gesture recognition</p>
+        </div>
+        
+        <div class="gesture-container">
+            <div class="gesture-card">
+                <i class="bi bi-hand-thumbs-up gesture-icon"></i>
+                <h3 class="gesture-title">Thumbs Up</h3>
+                <p class="gesture-desc">Extend green light duration for current direction</p>
+            </div>
+            
+            <div class="gesture-card">
+                <i class="bi bi-hand-thumbs-down gesture-icon"></i>
+                <h3 class="gesture-title">Thumbs Down</h3>
+                <p class="gesture-desc">Reduce green light duration for current direction</p>
+            </div>
+            
+            <div class="gesture-card">
+                <i class="bi bi-hand-index gesture-icon"></i>
+                <h3 class="gesture-title">Point Left/Right</h3>
+                <p class="gesture-desc">Switch priority to indicated direction</p>
+            </div>
+            
+            <div class="gesture-card">
+                <i class="bi bi-hand-stop gesture-icon"></i>
+                <h3 class="gesture-title">Stop Hand</h3>
+                <p class="gesture-desc">Activate all-red emergency stop</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section signal-image-section" id="about">
+        <div class="section-header">
+            <h2 class="section-title">About the System</h2>
+            <p class="section-subtitle">Advanced traffic management using computer vision and AI</p>
+        </div>
+
+        <div class="max-w-4xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-6">How It Works</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">
+                        Our intelligent traffic control system uses computer vision algorithms to detect vehicle density 
+                        at intersections and automatically adjusts signal timings to optimize traffic flow.
+                    </p>
+                    <p class="text-gray-600 mb-8 leading-relaxed">
+                        The system also incorporates hand gesture recognition for emergency manual control, 
+                        allowing traffic personnel to override automated signals when necessary for special situations.
+                    </p>
+                    
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-primary mb-2">30%</div>
+                            <div class="text-gray-600">Traffic Reduction</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-primary mb-2">24/7</div>
+                            <div class="text-gray-600">Monitoring</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-primary mb-2">95%</div>
+                            <div class="text-gray-600">Accuracy</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-primary mb-2">50+</div>
+                            <div class="text-gray-600">Intersections</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1614149162883-d44d7b5465ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80" 
+                         alt="Traffic System" class="rounded-2xl shadow-2xl">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 TrafficControl System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Header scroll effect
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Slider functionality
+        const sliders = document.querySelectorAll('.slider');
+        sliders.forEach(slider => {
+            const valueElement = document.getElementById(`${slider.id}-value`);
+            
+            // Update value display
+            slider.addEventListener('input', () => {
+                if (slider.id === 'min-green') {
+                    valueElement.textContent = `${slider.value}s`;
+                } else if (slider.id === 'accuracy' || slider.id === 'sensitivity') {
+                    valueElement.textContent = `${slider.value}%`;
+                } else {
+                    valueElement.textContent = slider.value;
+                }
+            });
+        });
+
+        // Simulate traffic light changes
+        function simulateTrafficLights() {
+            const intersections = document.querySelectorAll('.signal-box');
+            
+            setInterval(() => {
+                intersections.forEach(box => {
+                    const lights = box.querySelectorAll('.light');
+                    const activeIndex = Math.floor(Math.random() * 3);
+                    
+                    lights.forEach((light, index) => {
+                        if (index === activeIndex) {
+                            light.classList.add('active');
+                            
+                            // Update vehicle count randomly
+                            const countDisplay = box.querySelector('.count-display');
+                            const currentCount = parseInt(countDisplay.textContent);
+                            const newCount = Math.max(1, Math.min(50, currentCount + Math.floor(Math.random() * 10) - 5));
+                            countDisplay.textContent = newCount;
+                        } else {
+                            light.classList.remove('active');
+                        }
+                    });
+                });
+            }, 5000);
+        }
+
+        // Start simulation when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            simulateTrafficLights();
+        });
+    </script>
+</body>
+</html>

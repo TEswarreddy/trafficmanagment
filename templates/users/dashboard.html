@@ -1,0 +1,598 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrafficControl - Real-time Traffic Monitoring</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #1e293b;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: white;
+            background: 
+                linear-gradient(rgba(15, 23, 42, 0.85), rgba(30, 41, 59, 0.90)),
+                url('https://media.gettyimages.com/id/598973698/photo/green-and-red-traffic-light.jpg?s=612x612&w=0&k=20&c=lEeRNpOke9oPrY2SkbFTpeVVXP14OaJYwIydQYdpijo=');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;          /* ← slightly reduced from 2rem */
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, #60a5fa, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-link {
+            color: #cbd5e1;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .nav-link.active {
+            color: white;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        /* ────────────────────────────────────────
+           IMPROVED NAVBAR ALIGNMENT
+        ──────────────────────────────────────── */
+        nav.flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 1.5rem;
+        }
+
+        /* Left group: logo + icon */
+        .left-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 220px;           /* helps push center content right */
+        }
+
+        /* Center group: nav links */
+        .center-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-grow: 1;               /* takes available space */
+            justify-content: center;    /* centers nav links */
+            margin: 0 1.5rem;
+        }
+
+        /* Right group: welcome + logout */
+        .right-group {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            min-width: 260px;           /* prevents collapse & pushes to right */
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 1023px) {
+            .center-group {
+                display: none;          /* your original mobile behavior */
+            }
+            .right-group {
+                margin-left: auto;
+            }
+        }
+
+        /* Dashboard Styles */
+        .dashboard-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 8rem 2rem 2rem;
+            min-height: 100vh;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 1.5rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: 1px solid rgba(34, 197, 94, 0.5);
+        }
+
+        .live-pulse {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .traffic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .signal-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .signal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .signal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+
+        .signal-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .signal-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .signal-status {
+            padding: 0.35rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.5);
+        }
+
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .signal-location {
+            color: #cbd5e1;
+            font-size: 0.875rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .traffic-light-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .traffic-light {
+            background: rgba(15, 23, 42, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .light {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #374151;
+            transition: all 0.3s ease;
+            position: relative;
+            box-shadow: inset 0 -4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .light::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            right: 10%;
+            bottom: 10%;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1), transparent);
+        }
+
+        .light.active.red {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            box-shadow: 0 0 30px rgba(220, 38, 38, 0.6),
+                        inset 0 -4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .light.active.yellow {
+            background: linear-gradient(135deg, #d97706, #f59e0b);
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.6),
+                        inset 0 -4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .light.active.green {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            box-shadow: 0 0 30px rgba(34, 197, 94, 0.6),
+                        inset 0 -4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .vehicle-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .signal-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .update-time {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                padding: 8rem 1rem 2rem;
+            }
+            
+            .traffic-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.875rem;
+            }
+            
+            .signal-card {
+                padding: 1rem;
+            }
+            
+            .traffic-light {
+                padding: 1rem;
+            }
+            
+            .light {
+                width: 60px;
+                height: 60px;
+            }
+
+
+
+            
+        }
+    </style>
+</head>
+
+<body>
+        <!-- Toast Messages -->
+    {% if messages %}
+    <div class="toast-container">
+        {% for message in messages %}
+        <div class="toast {% if message.tags == 'error' %}toast-error{% elif message.tags == 'success' %}toast-success{% else %}toast-info{% endif %}">
+            <div class="font-semibold text-gray-900 flex items-center gap-2">
+                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-green-500{% elif message.tags == 'error' %}bi-exclamation-circle-fill text-red-500{% else %}bi-info-circle-fill text-blue-500{% endif %}"></i>
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="nav-container">
+            <nav class="flex items-center justify-between py-4">
+                <!-- Logo + left group -->
+                <div class="left-group">
+                    <i class="bi bi-traffic-light text-2xl" style="background: linear-gradient(135deg, #60a5fa, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    <a href="{% url 'dashboard' %}" class="logo">TrafficControl</a>
+                </div>
+
+                <!-- Navigation links (center) -->
+                <div class="center-group hidden md:flex items-center gap-2">
+                    <a href="{% url 'dashboard' %}" class="nav-link active">
+                        <i class="bi bi-house-door-fill"></i> HOME
+                    </a>
+
+                    <a href="{%url 'run_simulation'%}" class="nav-link">
+                        <i class="bi bi-gear-wide-connected"></i> Addpative
+                    </a>
+
+                    <a href="{%url 'run_gesture_simulation'%}" class="nav-link">
+                        <i class="bi bi-hand-index-thumb"></i> Hand Gestures
+                    </a>
+                    <a href="{%url 'emergency'%}" class="nav-link">
+                        <i class="bi bi-gear-wide-connected"></i> Emergency Mode
+                    </a>
+                </div>
+
+                <!-- User Menu (right) -->
+                <div class="right-group">
+                    <span class="text-gray-300">Welcome, {{ user.fullname }}</span>
+                    <a href="{% url 'logout' %}" class="btn btn-primary">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Header scroll effect
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // Real-time traffic light simulation
+            function simulateTrafficLights() {
+                const signalCards = document.querySelectorAll('.signal-card');
+                
+                signalCards.forEach(card => {
+                    if (Math.random() < 0.3) {
+                        const lights = card.querySelectorAll('.light');
+                        const currentActive = card.querySelector('.light.active');
+                        let nextStatus;
+                        
+                        if (currentActive) {
+                            const currentStatus = Array.from(currentActive.classList).find(cls => 
+                                cls.includes('red') || cls.includes('yellow') || cls.includes('green')
+                            );
+                            
+                            if (currentStatus === 'red') nextStatus = 'green';
+                            else if (currentStatus === 'green') nextStatus = 'yellow';
+                            else nextStatus = 'red';
+                        } else {
+                            const states = ['red', 'yellow', 'green'];
+                            nextStatus = states[Math.floor(Math.random() * states.length)];
+                        }
+                        
+                        lights.forEach(light => {
+                            light.classList.remove('active', 'red', 'yellow', 'green');
+                            if (light.classList.contains(nextStatus)) {
+                                light.classList.add('active', nextStatus);
+                            }
+                        });
+                        
+                        const countElement = card.querySelector('.stat-value');
+                        if (countElement && !countElement.textContent.includes('HIGH')) {
+                            const currentCount = parseInt(countElement.textContent);
+                            const change = Math.floor(Math.random() * 5) - 2;
+                            const newCount = Math.max(0, Math.min(50, currentCount + change));
+                            countElement.textContent = newCount;
+                            
+                            const densityElement = card.querySelector('.stat-value:last-child');
+                            if (densityElement) {
+                                if (newCount > 20) densityElement.textContent = 'HIGH';
+                                else if (newCount > 10) densityElement.textContent = 'MEDIUM';
+                                else densityElement.textContent = 'LOW';
+                            }
+                        }
+                    }
+                });
+            }
+
+            function scheduleNextUpdate() {
+                const delay = 5000 + Math.random() * 3000;
+                setTimeout(() => {
+                    simulateTrafficLights();
+                    scheduleNextUpdate();
+                }, delay);
+            }
+
+            scheduleNextUpdate();
+
+            // Smooth scrolling for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

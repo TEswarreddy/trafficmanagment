@@ -1,0 +1,781 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrafficControl - User Authentication</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #1e293b;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-300: #cbd5e1;
+            --gray-400: #94a3b8;
+            --gray-500: #64748b;
+            --gray-600: #475569;
+            --gray-700: #334155;
+            --gray-800: #1e293b;
+            --gray-900: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            color: var(--gray-800);
+            background: 
+                linear-gradient(rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.95)),
+                url('https://media.gettyimages.com/id/598973698/photo/green-and-red-traffic-light.jpg?s=612x612&w=0&k=20&c=lEeRNpOke9oPrY2SkbFTpeVVXP14OaJYwIydQYdpijo=');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--gray-200);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .header.scrolled {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .nav-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.025em;
+        }
+
+        .nav-link {
+            color: var(--gray-600);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: var(--gray-50);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gray-400);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Auth Container */
+        .auth-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 1rem 2rem;
+        }
+
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .auth-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .auth-icon {
+            font-size: 4rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        .auth-subtitle {
+            color: var(--gray-600);
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 1.1rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 1px solid var(--gray-300);
+            border-radius: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .input-field.error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .error-message {
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .hint-text {
+            color: var(--gray-500);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            line-height: 1.4;
+        }
+
+        /* Password Strength */
+        .strength-meter {
+            height: 6px;
+            border-radius: 3px;
+            margin-top: 0.5rem;
+            background: var(--gray-200);
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak {
+            background: var(--danger);
+            width: 33%;
+        }
+
+        .strength-medium {
+            background: var(--warning);
+            width: 66%;
+        }
+
+        .strength-strong {
+            background: var(--success);
+            width: 100%;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Toggle Link */
+        .toggle-link {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+
+        .toggle-link a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-link a:hover {
+            color: var(--primary-dark);
+        }
+
+        /* Toast Messages */
+        .toast-container {
+            position: fixed;
+            top: 6rem;
+            right: 2rem;
+            z-index: 1001;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast-success {
+            border-left-color: var(--success);
+        }
+
+        .toast-error {
+            border-left-color: var(--danger);
+        }
+
+        .toast-info {
+            border-left-color: var(--primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Section Transitions */
+        .auth-section {
+            transition: all 0.3s ease;
+        }
+
+        .hidden-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .visible-section {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--gray-900);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .auth-container {
+                padding: 5rem 1rem 2rem;
+            }
+            
+            .auth-card {
+                padding: 2rem;
+                margin: 0 1rem;
+            }
+            
+            .auth-title {
+                font-size: 1.75rem;
+            }
+            
+            .nav-container {
+                padding: 0 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 1.5rem;
+            }
+            
+            .auth-title {
+                font-size: 1.5rem;
+            }
+            
+            .btn {
+                padding: 0.75rem 1.25rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Toast Messages -->
+    {% if messages %}
+    <div class="toast-container">
+        {% for message in messages %}
+        <div class="toast {% if message.tags == 'error' %}toast-error{% elif message.tags == 'success' %}toast-success{% else %}toast-info{% endif %}">
+            <div class="font-semibold text-gray-900 flex items-center gap-2">
+                <i class="bi {% if message.tags == 'success' %}bi-check-circle-fill text-green-500{% elif message.tags == 'error' %}bi-exclamation-circle-fill text-red-500{% else %}bi-info-circle-fill text-blue-500{% endif %}"></i>
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="nav-container">
+            <nav class="flex items-center justify-between py-4">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <i class="bi bi-traffic-light text-2xl" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+                    <a href="{% url 'basefunction' %}" class="logo">TrafficControl</a>
+                </div>
+
+                <!-- Auth Buttons -->
+                <div class="flex items-center gap-3">
+                    <a href="{% url 'basefunction' %}" class="btn btn-secondary">
+                        <i class="bi bi-house-door"></i> Home
+                    </a>
+                    <a href="{%url 'admin_login'%}" class="btn btn-secondary">
+                        <i class="bi bi-gear"></i> Admin Portal
+                    </a>
+
+
+                    <a href="{% url 'userloginsignup' %}" class="btn btn-secondary d-inline-flex align-items-center">
+            <!-- Inline SVG for traffic lights (no bootstrap-icons required) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 16 16" class="me-2" fill="currentColor" aria-hidden="true">
+                        <path d="M5 1a1 1 0 0 0-1 1v1H3.5A1.5 1.5 0 0 0 2 4.5v7A1.5 1.5 0 0 0 3.5 13H5v1a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1h1.5A1.5 1.5 0 0 0 15 11.5v-7A1.5 1.5 0 0 0 13.5 3H11V2a1 1 0 0 0-1-1H5zM6 2h4v1H6V2zM3.5 4h9A.5.5 0 0 1 13 4.5v7a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5v-7A.5.5 0 0 1 3.5 4z"/>
+                        <circle cx="8" cy="6" r="1"/>
+                        <circle cx="8" cy="8.5" r="1"/>
+                        <circle cx="8" cy="11" r="1"/>
+                    </svg>
+                    TrafficControl
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Auth Container -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Auth Header -->
+            <div class="auth-header">
+                <i class="bi bi-person-circle auth-icon"></i>
+                <h1 class="auth-title">TrafficControl Portal</h1>
+                <p class="auth-subtitle">Login or create account to access traffic management system</p>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <div id="login-form" class="auth-section visible-section">
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    
+                    <!-- Email Field -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="bi bi-envelope input-icon"></i>
+                            <input type="email" name="email" placeholder="Email address" required class="input-field">
+                        </div>
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="bi bi-lock-fill input-icon"></i>
+                            <input type="password" name="password" placeholder="Password" required class="input-field">
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">
+                        <i class="bi bi-box-arrow-in-right"></i> Login to Account
+                    </button>
+                </form>
+
+                <div class="toggle-link">
+                    New here? <a href="#" id="showSignup">Create an account</a>
+                </div>
+            </div>
+
+            <!-- SIGNUP FORM -->
+            <div id="signup-form" class="auth-section hidden-section">
+                <form method="POST" enctype="multipart/form-data" action="{% url 'signup' %}" id="signupForm">
+                    {% csrf_token %}
+                    
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="bi bi-person input-icon"></i>
+                            <input id="su-name" type="text" name="name" placeholder="Full Name" required class="input-field">
+                        </div>
+                        <div id="err-name" class="error-message hidden">
+                            <i class="bi bi-exclamation-circle"></i> Please enter your full name
+                        </div>
+                        <div class="hint-text">Enter your full name (e.g., John Doe)</div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="bi bi-envelope input-icon"></i>
+                            <input id="su-email" type="email" name="email" placeholder="Email address" required class="input-field">
+                        </div>
+                        <div id="err-email" class="error-message hidden">
+                            <i class="bi bi-exclamation-circle"></i> Please enter a valid email address
+                        </div>
+                        <div class="hint-text">Email must be valid (e.g., example@gmail.com)</div>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="bi bi-phone input-icon"></i>
+                            <input id="su-phone" type="text" name="phone" placeholder="Phone number" required class="input-field">
+                        </div>
+                        <div id="err-phone" class="error-message hidden">
+                            <i class="bi bi-exclamation-circle"></i> Phone number must be 10 digits
+                        </div>
+                        <div class="hint-text">Enter a 10-digit phone number (numbers only)</div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="bi bi-lock-fill input-icon"></i>
+                            <input id="su-pass1" type="password" name="password1" placeholder="Password" required class="input-field">
+                        </div>
+                        <div id="err-pass1" class="error-message hidden">
+                            <i class="bi bi-exclamation-circle"></i> Password does not meet requirements
+                        </div>
+                        <div class="strength-meter">
+                            <div id="strength-bar" class="strength-fill"></div>
+                        </div>
+                        <div class="hint-text">
+                            Password must be at least 8 characters and include:<br>
+                            • At least one uppercase letter (A-Z)<br>
+                            • At least one lowercase letter (a-z)<br>
+                            • At least one special character (e.g., !@#$)
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <div class="input-wrapper">
+                            <i class="bi bi-lock-fill input-icon"></i>
+                            <input id="su-pass2" type="password" name="password2" placeholder="Confirm Password" required class="input-field">
+                        </div>
+                        <div id="err-pass2" class="error-message hidden">
+                            <i class="bi bi-exclamation-circle"></i> Passwords do not match
+                        </div>
+                        <div class="hint-text">Re-enter your password exactly as above</div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button id="signupSubmit" type="submit" class="submit-btn" disabled>
+                        <i class="bi bi-person-plus"></i> Create Account
+                    </button>
+                </form>
+
+                <div class="toggle-link">
+                    Already have an account? <a href="#" id="showLogin">Login here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="text-sm">© 2025 TrafficControl System. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Header scroll effect
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+
+            // Auto-hide messages after 5 seconds
+            setTimeout(() => {
+                const messages = document.querySelector('.toast-container');
+                if (messages) {
+                    messages.style.display = 'none';
+                }
+            }, 5000);
+
+            // Form toggle functionality
+            const loginForm = document.getElementById("login-form");
+            const signupForm = document.getElementById("signup-form");
+
+            document.getElementById("showSignup").addEventListener("click", (e) => {
+                e.preventDefault();
+                loginForm.classList.replace("visible-section", "hidden-section");
+                setTimeout(() => signupForm.classList.replace("hidden-section", "visible-section"), 200);
+            });
+
+            document.getElementById("showLogin").addEventListener("click", (e) => {
+                e.preventDefault();
+                signupForm.classList.replace("visible-section", "hidden-section");
+                setTimeout(() => loginForm.classList.replace("hidden-section", "visible-section"), 200);
+            });
+
+            // Real-time validations
+            const suName = document.getElementById("su-name");
+            const suEmail = document.getElementById("su-email");
+            const suPhone = document.getElementById("su-phone");
+            const suPass1 = document.getElementById("su-pass1");
+            const suPass2 = document.getElementById("su-pass2");
+            const signupSubmit = document.getElementById("signupSubmit");
+
+            const errName = document.getElementById("err-name");
+            const errEmail = document.getElementById("err-email");
+            const errPhone = document.getElementById("err-phone");
+            const errPass1 = document.getElementById("err-pass1");
+            const errPass2 = document.getElementById("err-pass2");
+            const strengthBar = document.getElementById("strength-bar");
+
+            function validateName() {
+                const isValid = suName.value.trim() !== "";
+                if (!isValid) {
+                    errName.classList.remove("hidden");
+                    suName.classList.add("error");
+                } else {
+                    errName.classList.add("hidden");
+                    suName.classList.remove("error");
+                }
+                return isValid;
+            }
+
+            function validateEmail() {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                const isValid = re.test(suEmail.value);
+                if (!isValid) {
+                    errEmail.classList.remove("hidden");
+                    suEmail.classList.add("error");
+                } else {
+                    errEmail.classList.add("hidden");
+                    suEmail.classList.remove("error");
+                }
+                return isValid;
+            }
+
+            function validatePhone() {
+                const isValid = /^\d{10}$/.test(suPhone.value);
+                if (!isValid) {
+                    errPhone.classList.remove("hidden");
+                    suPhone.classList.add("error");
+                } else {
+                    errPhone.classList.add("hidden");
+                    suPhone.classList.remove("error");
+                }
+                return isValid;
+            }
+
+            function checkPasswordStrength(password) {
+                let strength = 0;
+                if (password.length >= 8) strength++;
+                if (/[A-Z]/.test(password)) strength++;
+                if (/[a-z]/.test(password)) strength++;
+                if (/[\W_]/.test(password)) strength++;
+                return strength;
+            }
+
+            function updatePasswordStrength() {
+                const pass = suPass1.value;
+                const strength = checkPasswordStrength(pass);
+
+                // Reset styles
+                strengthBar.className = "strength-fill";
+                suPass1.classList.remove("error");
+
+                if (pass === "") {
+                    errPass1.classList.add("hidden");
+                } else if (strength < 3) {
+                    strengthBar.classList.add("strength-weak");
+                    errPass1.classList.remove("hidden");
+                    suPass1.classList.add("error");
+                } else if (strength === 3) {
+                    strengthBar.classList.add("strength-medium");
+                    errPass1.classList.add("hidden");
+                    suPass1.classList.remove("error");
+                } else {
+                    strengthBar.classList.add("strength-strong");
+                    errPass1.classList.add("hidden");
+                    suPass1.classList.remove("error");
+                }
+
+                return strength === 4;
+            }
+
+            function validateConfirmPassword() {
+                const isValid = suPass2.value === suPass1.value && suPass1.value !== "";
+                if (!isValid) {
+                    errPass2.classList.remove("hidden");
+                    suPass2.classList.add("error");
+                } else {
+                    errPass2.classList.add("hidden");
+                    suPass2.classList.remove("error");
+                }
+                return isValid;
+            }
+
+            function validateForm() {
+                const valid = validateName() && 
+                             validateEmail() && 
+                             validatePhone() && 
+                             updatePasswordStrength() && 
+                             validateConfirmPassword();
+                signupSubmit.disabled = !valid;
+                return valid;
+            }
+
+            // Event listeners
+            suName.addEventListener("input", validateForm);
+            suEmail.addEventListener("input", validateForm);
+            suPhone.addEventListener("input", validateForm);
+            suPass1.addEventListener("input", validateForm);
+            suPass2.addEventListener("input", validateForm);
+
+            // Initial validation
+            validateForm();
+        });
+    </script>
+</body>
+</html>
